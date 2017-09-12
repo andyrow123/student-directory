@@ -4,35 +4,44 @@ class String
   end
 end
 
+@students = []
+
+def print_menu
+  # 1. print the menu and ask the user what to do
+  puts '1. Input the students'
+  puts '2. Show the students'
+  puts '9. Exit'
+end
+
+def show_students
+  print_header
+  print_students_list(%w(name sex age cohort))
+  print_footer(@students)
+end
+
+def process(selection)
+  case selection
+    when '1'
+      input_students
+    when '2'
+      show_students
+    when '9'
+      exit # This will cause the program to terminate
+    else
+      puts "I don't know what you meant, try again."
+  end
+end
+
 def interactive_menu
-  students = []
+
   loop do
-    # 1. print the menu and ask the user what to do
-    puts '1. Input the students'
-    puts '2. Show the students'
-    puts '9. Exit'
-
-    # 2. read the input and save it into a variable
-    selection = gets.chomp
-
-    # 3. do what the user has asked
-    case selection
-      when '1'
-        students = input_students
-      when '2'
-        print_header
-        print_list(%w(name sex age cohort), students)
-        print_footer(students)
-      when '9'
-        exit # This will cause the program to terminate
-      else
-        puts "I don't know what you meant, try again."
-    end
+    print_menu
+    process(gets.chomp)
   end
 end
 
 def input_students
-  students = []
+  #students = []
   puts 'Please enter the names of the students'
   puts 'To finish, just hit return twice'
   name = STDIN.gets.strip
@@ -44,13 +53,13 @@ def input_students
       student[key] = question(key)
       student[key] = 'missing' if student[key] == :''
     end
-    students << student
+    @students << student
     puts "You have added #{student[:name]} to the list, in the #{student[:cohort]} cohort\n"
     # change_response
-    puts "You have added #{students.count} student#{'s' if students.count > 1}. Type in another name to add or press return to proceed"
+    puts "You have added #{@students.count} student#{'s' if @students.count > 1}. Type in another name to add or press return to proceed"
     name = STDIN.gets.strip
   end
-  students
+  @students
 end
 
 def question(keys)
@@ -110,11 +119,12 @@ def filter(array, filter)
   result
 end
 
-def print_list(keys, names, filters='')
+def print_students_list(keys, filters='')
+  puts filters
   search_filters = filters.downcase.split(',')
   filter_count = 0
   search_filters.reject! {|item| item.empty?}
-  result = names
+  result = @students
   if !search_filters.to_a.empty?
     res = []
     search_filters.each {|filter|
