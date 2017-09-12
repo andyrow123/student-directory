@@ -1,8 +1,8 @@
-class String
-  def is_i?
-    /\A[-+]?\d+\z/ === self
-  end
-end
+# class String
+#   def is_i?
+#     /\A[-+]?\d+\z/ === self
+#   end
+# end
 
 @students = []
 
@@ -31,7 +31,7 @@ def save_students
   # open the file for writing
   file = File.open('students.csv', 'w')
   # iterate of the array of students
-  @students. each do |student|
+  @students.each do |student|
     student_data = [student[:name], student[:sex], student[:age], student[:cohort]]
     csv_line = student_data.join(',')
     file.puts csv_line
@@ -104,21 +104,6 @@ def question(keys)
   puts "Enter the persons #{keys}"
   STDIN.gets.strip.to_sym
 end
-
-# # # first we put all student into an array
-# students = [
-#     {name: 'Dr. Hannibal Lecter', sex: 'M', age: 37, cohort: :november},
-#     {name: 'Darth Vader', sex: 'M', age: 100,  cohort: :december},
-#     {name: 'Nurse Ratched', sex: 'F', age: 36,  cohort: :november},
-#     {name: 'Michael Corleone', sex: 'M', age: 55,  cohort: :november},
-#     {name: 'Alex DeLarge', sex: 'M', age: 70,  cohort: :november},
-#     {name: 'The Wicked Witch of the West', sex: 'F', age: 35,  cohort: :december},
-#     {name: 'Terminator', sex: 'M', age: 120,  cohort: :december},
-#     {name: 'Freddy Krueger', sex: 'M', age: 7,  cohort: :december},
-#     {name: 'The Joker', sex: 'M', age: 20,  cohort: :december},
-#     {name: 'Joffery Baratheon', sex: 'M', age: 16,  cohort: :december},
-#     {name: 'Norman Bates', sex: 'M', age: 50,  cohort: :december},
-# ]
 
 def divider(width)
   puts '-' * width
@@ -215,8 +200,3 @@ end
 
 try_load_students
 interactive_menu
-
-# students = input_students
-# print_header
-# print_list(%w(name sex age cohort), students)
-# print_footer(students)
