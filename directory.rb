@@ -6,6 +6,27 @@ end
 
 @students = []
 
+def try_load_students
+  filename = ARGV.first # load the first argument from the command line
+  return if filename.nil? # get out of the method if it isn't given
+  if File.exists?(filename) # if it exists
+    load_students(filename)
+    puts "Loaded #{@students.count} from #{filename}"
+  else # if it doesn't exist
+    puts "Sorry, #{filename} does not exist."
+    exit # quit program
+  end
+end
+
+def load_students(filename='students.csv')
+  file = File.open(filename, 'r')
+  file.readlines.each do |line|
+    name, sex, age, cohort = line.chomp.split(',')
+    @students << {name: name, sex: sex, age: age, cohort: cohort.to_sym}
+  end
+  file.close
+end
+
 def save_students
   # open the file for writing
   file = File.open('students.csv', 'w')
@@ -23,6 +44,7 @@ def print_menu
   puts '1. Input the students'
   puts '2. Show the students'
   puts '3. Save the list to students.csv'
+  puts '4. Load the list from students.csv'
   puts '9. Exit'
 end
 
@@ -40,6 +62,8 @@ def process(selection)
       show_students
     when '3'
       save_students
+    when '4'
+      load_students
     when '9'
       exit # This will cause the program to terminate
     else
@@ -48,10 +72,9 @@ def process(selection)
 end
 
 def interactive_menu
-
   loop do
     print_menu
-    process(gets.chomp)
+    process(STDIN.gets.chomp)
   end
 end
 
@@ -190,6 +213,7 @@ def print_footer(names)
 end
 
 
+try_load_students
 interactive_menu
 
 # students = input_students
