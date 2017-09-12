@@ -4,7 +4,32 @@ class String
   end
 end
 
+def interactive_menu
+  students = []
+  loop do
+    # 1. print the menu and ask the user what to do
+    puts '1. Input the students'
+    puts '2. Show the students'
+    puts '9. Exit'
 
+    # 2. read the input and save it into a variable
+    selection = gets.chomp
+
+    # 3. do what the user has asked
+    case selection
+      when '1'
+        students = input_students
+      when '2'
+        print_header
+        print_list(%w(name sex age cohort), students)
+        print_footer(students)
+      when '9'
+        exit # This will cause the program to terminate
+      else
+        puts "I don't know what you meant, try again."
+    end
+  end
+end
 
 def input_students
   students = []
@@ -85,7 +110,7 @@ def filter(array, filter)
   result
 end
 
-def print_list(keys, names, filters='d')
+def print_list(keys, names, filters='')
   search_filters = filters.downcase.split(',')
   filter_count = 0
   search_filters.reject! {|item| item.empty?}
@@ -139,7 +164,10 @@ def print_footer(names)
   divider(67)
 end
 
-students = input_students
-print_header
-print_list(%w(name sex age cohort), students)
-print_footer(students)
+
+interactive_menu
+
+# students = input_students
+# print_header
+# print_list(%w(name sex age cohort), students)
+# print_footer(students)
