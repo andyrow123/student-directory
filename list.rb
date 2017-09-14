@@ -9,9 +9,10 @@ class List
     @width = width
     @data_source = data_source
     @keys = keys
-    @data = data.empty? ? eval(data_source) : data
-    @format_str = col_format(keys)
-    @headings = keys.unshift('')
+    @headings = keys.map {|e| e.dup }.unshift('')
+    @data = data.empty? ? get_data(@data_source) : data
+    @col_widths = @data.empty? ? [] : calculate_col_widths(@data, @headings)
+    @format_str = column_format(@col_widths)
     @@lists << self
   end
 
@@ -23,11 +24,25 @@ class List
     list = @@lists.detect{ |list|
       list.id == list_id
     }
-    list.draw(list)
-    # loop do
-    #   list.draw
-    #   list.process(STDIN.gets.chomp)
-    # end
+    # list.draw
+    loop do
+      list.draw
+      input = STDIN.gets.chomp
+      break if input == 'b'
+      list.process(input)
+    end
+  end
+
+  def process(selection)
+    case selection
+      when '1'
+        # menu_item = menu_items.detect{ |menu_item|
+        #   menu_item.key == '1'
+        # }
+        # eval(menu_item.route)
+      else
+        puts "I don't know what you meant, try again."
+    end
   end
 
   def self.find(list_id)
@@ -36,13 +51,15 @@ class List
     }
   end
 
-
-  def refresh_data(data_source)
-    @data = eval(data_source)
+  def self.draw(list)
+    get_data(list.data_source)
+    header
+    list(list.keys, list.data)
+    footer(list.data)
   end
 
-  def draw(list)
-    refresh_data(@data_source)
+  def draw
+    get_data(@data_source)
     header
     list(@keys, @data)
     footer(@data)
@@ -58,14 +75,65 @@ class List
     divider
   end
 
-  def col_format(keys)
-    format_str = ''
-    headings = keys.unshift('')
+  def footer(objects)
+    # finally, we print the total number of students
+    divider
+    puts "Overall, we have #{objects.count} great #{objects.count < 2 ? 'student' : 'students'}"
+    divider
+    puts 'Menu - | [b] Back | [number] View Record'
+  end
+
+
+  private
+
+  def get_data(data_source)
+    @data = eval(data_source)
+    if @data.empty?
+      return []
+    else
+      @col_widths = calculate_col_widths(@data, @headings)
+      @format_str = column_format(@col_widths)
+    end
+    # calculate_col_widths(@data, @headings)
+  end
+
+  def calculate_col_widths(data, headings)
+    widths = []
     headings.each {|heading|
-      width = heading.length + 4
-      format_str + "%-#{width}s"
+      if heading.empty?
+        widths << 3
+      else
+        col_values = []
+        data.map {|item|
+          term = "item.#{heading}.to_s"
+          col_values << eval(term)
+        }
+        widths << col_values.max_by(&:length).length + 6
+      end
+
+    }
+    @width = widths.inject(:+)
+    widths
+  end
+
+  def column_format(widths)
+    format_str = ''
+    widths.each {|width|
+      width = width
+      format_str = format_str + "%-#{width}s"
     }
     format_str
+  end
+
+  def empty_list(filters)
+
+    puts ''
+    puts ''
+    filters == '' ?
+        (puts 'There are no results to display'.center(@width)) :
+        (puts "After filtering with: #{filters} - There are no results to display".center(@width))
+    puts ''
+    puts ''
   end
 
   def list(keys, data, filters='')
@@ -88,16 +156,14 @@ class List
     #   result = res
     # end
     # Adds a blank at the beginning for option number
-    headings = keys.unshift('')
+    headings = @headings
     format_str = @format_str
-    # headings.each {|heading|
-    #   width = heading.length + 4
-    #   format_str + "%-#{width}s"
-    # }
-    # format = '%-5s %-40s %-5s %-5s %-5s'
+
     puts format_str % headings.map{|heading| heading.capitalize}
     divider
-    if result != []
+    if result.empty?
+      empty_list(filters)
+    else
       grouped_results = {}
       result.group_by {|lst_obj|
         lst_obj.cohort
@@ -114,12 +180,6 @@ class List
           c += 1
         end
       }
-    else
-      puts ''
-      puts ''
-      puts "After filtering with: #{search_filters} - There are no results to display!"
-      puts ''
-      puts ''
     end
     keys.reject! {|item| item.empty?}
   end
@@ -140,15 +200,9 @@ class List
           filter_count += 1
         end
       }
-      return res
+      result = res
     end
-  end
-
-  def footer(objects)
-    # finally, we print the total number of students
-    divider
-    puts "Overall, we have #{objects.count} great #{objects.count < 2 ? 'student' : 'students'}"
-    divider
+    result
   end
 
   def filter(array, filter)

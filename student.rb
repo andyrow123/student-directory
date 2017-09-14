@@ -18,6 +18,10 @@ class Student
     %w(name sex age cohort)
   end
 
+  # def keys
+  #   %w(name sex age cohort)
+  # end
+
   def self.add_students
     #students = []
     puts 'Please enter the names of the students'

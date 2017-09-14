@@ -59,9 +59,13 @@ end
 
 # json_file_save('main_menu_items.json', @main_menu_items)
 
-student_list = List.new(1,'The Students of Villains Academy', 67, 'Student.all', Student.keys, @students)
+
+def main_app
+  student_list = List.new(1,'The Students of Villains Academy', 67, 'Student.all', Student.keys, @students)
+  new_menu = Menu.new(1,'Main Menu', 67, @main_menu_items)
+  new_menu.load_menu
+end
+
+main_app
 
 
-new_menu = Menu.new(1,'Main Menu', 67, @main_menu_items)
-
-new_menu.load_menu
