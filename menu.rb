@@ -65,7 +65,7 @@ class Menu
         }
         eval(menu_item.route)
         # load_students
-      when '9'
+      when '5'
         exit # This will cause the program to terminate
       else
         puts "I don't know what you meant, try again."

@@ -3,7 +3,7 @@ class List
 
   attr_accessor :id, :title, :width, :data_source, :keys, :data
 
-  def initialize(id, title, width, data_source, keys, data)
+  def initialize(id, title, width, data_source, keys, data=[])
     @id = id
     @title = title
     @width = width

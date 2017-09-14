@@ -28,14 +28,30 @@ def try_load_students
   end
 end
 
-
-
-
-
-# try_load_students
-
 # hold students in an array
 @students = []
+
+
+@main_menu_items = []
+@main_menu_items << MenuItem.new('Input the students', '1', 1,'Student.add_students')
+@main_menu_items << MenuItem.new('Show the students', '2', 1, 'List.load_list(1)')
+@main_menu_items << MenuItem.new('Save the list to students.csv', '3', 1, 'Student.save_students')
+@main_menu_items << MenuItem.new('Load the list from students.csv', '4', 1, 'Student.load_students')
+# @menu_items << MenuItem.new('Exit', '9', 1)
+
+
+
+def main_app
+  student_list = List.new(1,'The Students of Villains Academy', 67, 'Student.all', Student.keys, @students)
+  new_menu = Menu.new(1,'Main Menu', 67, @main_menu_items)
+  new_menu.load_menu
+end
+
+# try_load_students
+main_app
+
+
+
 # @students << Student.new('Dr. Hannibal Lecter', 'M', 55, :november)
 # @students << Student.new('Darth Vader', 'M', 100, :december)
 # @students << Student.new('Nurse Ratched', 'F', 36, :november)
@@ -50,22 +66,4 @@ end
 
 # json_file_save('students.json', @students)
 
-@main_menu_items = []
-@main_menu_items << MenuItem.new('Input the students', '1', 1,'Student.add_students')
-@main_menu_items << MenuItem.new('Show the students', '2', 1, 'List.load_list(1)')
-@main_menu_items << MenuItem.new('Save the list to students.csv', '3', 1, 'Student.save_students')
-@main_menu_items << MenuItem.new('Load the list from students.csv', '4', 1, 'Student.load_students')
-# @menu_items << MenuItem.new('Exit', '9', 1)
-
 # json_file_save('main_menu_items.json', @main_menu_items)
-
-
-def main_app
-  student_list = List.new(1,'The Students of Villains Academy', 67, 'Student.all', Student.keys, @students)
-  new_menu = Menu.new(1,'Main Menu', 67, @main_menu_items)
-  new_menu.load_menu
-end
-
-main_app
-
-
