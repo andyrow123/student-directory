@@ -1,0 +1,1 @@
+[{"title":"Input the students","key":"1","menu_id":1,"route":"Student.add_students"},{"title":"Show the students","key":"2","menu_id":1,"route":"List.load_list(1)"},{"title":"Save the list to students.csv","key":"3","menu_id":1,"route":"Student.save_students"},{"title":"Load the list from students.csv","key":"4","menu_id":1,"route":"Student.load_students"}]
