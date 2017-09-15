@@ -18,6 +18,32 @@ def try_load_students
   end
 end
 
+def add_students(arr, obj)
+  arr << object
+end
+
+def input_students
+  #students = []
+  puts 'Please enter the names of the students'
+  puts 'To finish, just hit return twice'
+  name = STDIN.gets.strip
+  keys = [:cohort, :sex, :age]
+  until name.empty? do
+    student = Hash.new { |this_hash, key| this_hash[key] = 'missing'}
+    student[:name] = name
+    keys.each do |key|
+      student[key] = question(key)
+      # student[key] = 'missing' if student[key] == :''
+    end
+    @students << student
+    puts "You have added #{student[:name]} to the list, in the #{student[:cohort]} cohort\n"
+    # change_response
+    puts "You have added #{@students.count} student#{'s' if @students.count > 1}. Type in another name to add or press return to proceed"
+    name = STDIN.gets.strip
+  end
+  @students
+end
+
 def load_students(filename='students.csv')
   file = File.open(filename, 'r')
   file.readlines.each do |line|
@@ -78,31 +104,10 @@ def interactive_menu
   end
 end
 
-def input_students
-  #students = []
-  puts 'Please enter the names of the students'
-  puts 'To finish, just hit return twice'
-  name = STDIN.gets.strip
-  keys = [:cohort, :sex, :age]
-  until name.empty? do
-    student = Hash.new { |this_hash, key| this_hash[key] = 'missing'}
-    student[:name] = name
-    keys.each do |key|
-      student[key] = question(key)
-      student[key] = 'missing' if student[key] == :''
-    end
-    @students << student
-    puts "You have added #{student[:name]} to the list, in the #{student[:cohort]} cohort\n"
-    # change_response
-    puts "You have added #{@students.count} student#{'s' if @students.count > 1}. Type in another name to add or press return to proceed"
-    name = STDIN.gets.strip
-  end
-  @students
-end
-
 def question(keys)
   puts "Enter the persons #{keys}"
-  STDIN.gets.strip.to_sym
+  answer = STDIN.gets.strip.to_sym
+  '*Empty*' if answer == ''
 end
 
 def divider(width)
