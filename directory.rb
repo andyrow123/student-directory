@@ -1,20 +1,14 @@
-# class String
-#   def is_i?
-#     /\A[-+]?\d+\z/ === self
-#   end
-# end
-
 require './menu.rb'
 require './list.rb'
 require './student.rb'
 
-require 'json'
-
-def json_file_save(filename, data)
-  File.open("#{filename}",'w') do |f|
-    f.write(data.to_json)
-  end
-end
+# require 'json'
+#
+# def json_file_save(filename, data)
+#   File.open("#{filename}",'w') do |f|
+#     f.write(data.to_json)
+#   end
+# end
 
 def try_load_students
   filename = ARGV.first # load the first argument from the command line
@@ -37,7 +31,6 @@ end
 @main_menu_items << MenuItem.new('Show the students', '2', 1, 'List.load_list(1)')
 @main_menu_items << MenuItem.new('Save the list to students.csv', '3', 1, 'Student.save_students')
 @main_menu_items << MenuItem.new('Load the list from students.csv', '4', 1, 'Student.load_students')
-# @menu_items << MenuItem.new('Exit', '9', 1)
 
 
 
@@ -47,7 +40,7 @@ def main_app
   new_menu.load_menu
 end
 
-# try_load_students
+try_load_students
 main_app
 
 
@@ -67,3 +60,23 @@ main_app
 # json_file_save('students.json', @students)
 
 # json_file_save('main_menu_items.json', @main_menu_items)
+
+
+
+
+
+# # create an empty array
+# students = []
+#
+# puts 'Please enter the names of the student'
+# # get the full name
+# name = gets.chomp
+#
+# while name.empty?
+#   puts 'You need to enter a name'
+#   puts 'Please enter the names of the students'
+#   # get the full name
+#   name = gets.chomp
+# end
+#
+# puts name

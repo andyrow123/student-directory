@@ -87,13 +87,15 @@ class List
   private
 
   def get_data(data_source)
-    @data = eval(data_source)
-    if @data.empty?
+    data = eval(data_source)
+    if data.empty?
       return []
     else
-      @col_widths = calculate_col_widths(@data, @headings)
+      @col_widths = calculate_col_widths(data, @headings)
       @format_str = column_format(@col_widths)
     end
+    @data = data
+    data
     # calculate_col_widths(@data, @headings)
   end
 
