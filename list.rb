@@ -3,7 +3,7 @@ class List
 
   attr_accessor :id, :title, :width, :data_source, :keys, :data
 
-  def initialize(id, title, width, data_source, keys, data=[])
+  def initialize(id, title, width, data_source, keys, data=[], list_menu)
     @id = id
     @title = title
     @width = width
@@ -13,6 +13,7 @@ class List
     @data = data.empty? ? get_data(@data_source) : data
     @col_widths = @data.empty? ? [] : calculate_col_widths(@data, @headings)
     @format_str = column_format(@col_widths)
+    @list_menu = list_menu
     @@lists << self
   end
 
@@ -27,6 +28,7 @@ class List
     # list.draw
     loop do
       list.draw
+      @list_menu.load_menu(:horizontal)
       input = STDIN.gets.chomp
       break if input == 'b'
       list.process(input)
@@ -81,6 +83,7 @@ class List
     puts "Overall, we have #{objects.count} great #{objects.count < 2 ? 'student' : 'students'}"
     divider
     puts 'Menu - | [b] Back | [number] View Record'
+
   end
 
 
@@ -107,12 +110,10 @@ class List
       else
         col_values = []
         data.map {|item|
-          term = "item.#{heading}.to_s"
-          col_values << eval(term)
+          col_values << eval("item.#{heading}.to_s")
         }
         widths << col_values.max_by(&:length).length + 6
       end
-
     }
     @width = widths.inject(:+)
     widths
@@ -138,58 +139,67 @@ class List
     puts ''
   end
 
-  def list(keys, data, filters='')
+  def list(keys, data, filters='', group_by='name')
+    # if !filters.empty?
+    # filters the data using specified filters
     result = list_filter(data, filters)
-    # search_filters = filters.downcase.split(',')
-    # filter_count = 0
-    # search_filters.reject! {|item| item.empty?}
-    # result = data
-    # if !search_filters.to_a.empty?
-    #   res = []
-    #   search_filters.each {|filter|
-    #     if filter_count == 0
-    #       res = filter(result, filter)
-    #       filter_count += 1
-    #     else
-    #       res = filter(res[0], filter)
-    #       filter_count += 1
-    #     end
-    #   }
-    #   result = res
-    # end
-    # Adds a blank at the beginning for option number
-    headings = @headings
-    format_str = @format_str
-
-    puts format_str % headings.map{|heading| heading.capitalize}
+    # applies formatting to the column headings and puts to screen
+    puts @format_str % @headings.map{|heading| heading.capitalize}
     divider
+    # checks if the filters have returned an empty result and if so puts message to screen
     if result.empty?
       empty_list(filters)
     else
-      grouped_results = {}
-      result.group_by {|lst_obj|
-        lst_obj.cohort
-      }.map {|v1, v2|
-        grouped_results[v1] = v2
-      }
-
-      c = 1
-
-      grouped_results.each {|grouped_result|
-        puts "*#{grouped_result[0].capitalize}".center(@width)
-        grouped_result[1].each_with_index do |object, index|
-          puts format_str % [c, object.name, object.sex, object.age, object.cohort]
-          c += 1
-        end
-      }
+      # Group the results by Cohort and write to screen
+      group_list_entries(result, group_by)
     end
     keys.reject! {|item| item.empty?}
   end
 
+  def sort_list_entries(data, sort_by)
+    data.sort_by { |item|
+      eval("item.#{sort_by}")
+    }
+  end
+
+  def group_list_entries(data, group_by)
+    grouped_results = {}
+
+    # order and group alphabetically
+    data.sort_by { |item|
+      eval("item.#{group_by}")
+    }.group_by{|item|
+      eval("item.#{group_by}[0]")
+      # filter[0]
+    }.map {|grouped_by, array| grouped_results[grouped_by] = array }
+
+    # group by key
+    # data.group_by { |lst_obj| eval("lst_obj.#{group_by}") }.map {|grouped_by, array| grouped_results[grouped_by] = array }
+    # List selection counter
+    c = 1
+    # print each group heading and result array to screen
+    grouped_results.each {|grouped_result|
+      # puts the heading to screen
+      puts "*#{grouped_result[0].to_s.capitalize}*"
+      # goes through each headings grouped results
+      grouped_result[1].each do |result|
+        str_arr = [c]
+        # adds each result entry to the string array
+        keys.each{|key| str_arr <<  eval("result.#{key}") }
+        # applies formatting and puts result to screen
+        puts @format_str % str_arr
+        c += 1
+      end
+    }
+    grouped_results
+  end
+
   def list_filter(data, filters)
+    # downcase the filters and insert into an array
     search_filters = filters.downcase.split(',')
     filter_count = 0
-    search_filters.reject! {|item| item.empty?}
+    # if the array of filters has an empty filter delete it
+    search_filters.reject! { |item| item.empty? }
     result = data
     if !search_filters.to_a.empty?
       res = []

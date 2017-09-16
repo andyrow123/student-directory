@@ -22,6 +22,17 @@ def try_load_students
   end
 end
 
+def load_csv(filename, &block)
+  CSV.foreach(filename) do |row|
+    block.call(row)
+  end
+end
+
+def save_csv(filename, &block)
+  CSV.open(filename, 'wb') do |csv|
+    block.call(csv)
+  end
+end
 # hold students in an array
 @students = []
 
@@ -32,12 +43,21 @@ end
 @main_menu_items << MenuItem.new('Save the list to students.csv', '3', 1, 'Student.save_students')
 @main_menu_items << MenuItem.new('Load the list from students.csv', '4', 1, 'Student.load_students')
 
-
+@list_menu_items = []
+@list_menu_items << MenuItem.new('Back', 'b', 2,'List.')
+@list_menu_items << MenuItem.new('Sort', 's', 2, 'List.')
+@list_menu_items << MenuItem.new('Filter', 'f', 2, 'Student.save_students')
+@list_menu_items << MenuItem.new('Group', 'g', 2, 'Student.load_students')
 
 def main_app
+  # puts Student[]
   student_list = List.new(1,'The Students of Villains Academy', 67, 'Student.all', Student.keys, @students)
-  new_menu = Menu.new(1,'Main Menu', 67, @main_menu_items)
-  new_menu.load_menu
+  main_menu = Menu.new(1,'Main Menu', 67, @main_menu_items)
+  list_menu = Menu.new(2, 'List Menu', 67, @list_menu_items)
+
+  main_menu.get_menu
+
+  # Student.load_menu()
 end
 
 try_load_students

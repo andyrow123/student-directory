@@ -1,8 +1,9 @@
 class Student
-  @@students = Array.new
+  require 'csv'
+  @@students = []
   attr_accessor :name, :sex, :age, :cohort
 
-  def initialize(name, sex, age, cohort)
+  def initialize(name='*empty*', sex='*empty*', age='*empty*', cohort='*empty*')
     @name = name
     @sex = sex
     @age = age
@@ -10,65 +11,66 @@ class Student
     @@students << self
   end
 
-  def self.all
-    @@students
-  end
+  # Class methods
 
-  def self.keys
-    %w(name sex age cohort)
-  end
+  class << self
+    def all
+      @@students
+    end
 
-  # def keys
-  #   %w(name sex age cohort)
-  # end
+    def keys
+      %w(name sex age cohort)
+    end
 
-  def self.add_students
-    #students = []
-    puts 'Please enter the names of the students'
-    puts 'To finish, just hit return twice'
-    name = STDIN.gets.strip
-    keys = [:cohort, :sex, :age]
-    until name.empty? do
-      student = Hash.new { |this_hash, key| this_hash[key] = 'missing'}
-      student[:name] = name
-      keys.each do |key|
-        student[key] = question(key)
-        student[key] = 'missing' if student[key] == :''
+    def load_students(filename='students.csv')
+      @@students = []
+      CSV.foreach(filename) do |row|
+        name, sex, age, cohort = row
+        Student.new(name.to_s, sex.to_s, age.to_i, cohort.to_sym)
       end
-      @@students << Student.new(student.name, student.sex, student.age, student.cohort)
-      puts "You have added #{student[:name]} to the list, in the #{student[:cohort]} cohort\n"
-      # change_response
+    end
+
+    def save_students(filename='students.csv')
+      CSV.open(filename, 'wb') do |csv|
+        @@students.each do |student|
+          csv << [student.name, student.sex, student.age, student.cohort]
+        end
+
+      end
+    end
+
+    def add_students
+      student = {}
+      keys = self.keys.each{|item| student[item.to_sym] = ''}
+      puts 'To finish, just hit return twice'
+      student[:name] = question(keys.first)
+      until student[:name].empty? do
+        # keys.shift
+        keys[1..-1].each {|key| student[key.to_sym] = question(key) }
+        commit_student(student)
+        student[:name] = STDIN.gets.strip
+      end
+    end
+
+    def question(key)
+      puts "Enter the students #{key}"
+      STDIN.gets.strip
+    end
+
+    def commit_student(student)
+      new_student = Student.new(student[:name], student[:sex], student[:age], student[:cohort])
+      success(new_student)
+    end
+
+    def success(student)
+      puts "You have added #{student.name} to the list, in the #{student.cohort} cohort\n"
       puts "You have added #{@@students.count} student#{'s' if @@students.count > 1}. Type in another name to add or press return to proceed"
-      name = STDIN.gets.strip
     end
-    @students
+
   end
 
-
-  def self.load_students(filename='students.csv')
-    file = File.open(filename, 'r')
-    file.readlines.each do |line|
-      name, sex, age, cohort = line.chomp.split(',')
-      Student.new(name.to_s, sex.to_s, age.to_i, cohort.to_sym)
-    end
-    file.close
-  end
-
-  def self.save_students
-    # open the file for writing
-    file = File.open('students.csv', 'w')
-    # iterate of the array of students
-    @@students.each do |student|
-      student_data = [student.name, student.sex, student.age, student.cohort]
-      csv_line = student_data.join(',')
-      file.puts csv_line
-    end
-    file.close
-  end
-
-  def question(keys)
-    puts "Enter the persons #{keys}"
-    STDIN.gets.strip.to_sym
+  def keys
+    %w(name sex age cohort)
   end
 
   def as_json(options={})

@@ -11,70 +11,72 @@ class Menu
     @@menus << self
   end
 
-  def self.all
-    @@menus
-  end
+  # Class methods
 
-  def self.find(menu_id)
-    @@menus.detect{ |menu|
-      menu.id == menu_id
-    }
-  end
+  class << self
+    def all
+      @@menus
+    end
 
-  def self.load_menu(menu_id)
-    menu = @@menus.detect{ |menu|
-      menu.id == menu_id
-    }
-    loop do
-      draw(menu)
-      process(STDIN.gets.chomp, menu.menu_items)
+    def find(menu_id)
+      @@menus.detect{ |menu|
+        menu.id == menu_id
+      }
+    end
+
+    def load_menus(filename='menus.csv')
+      @@menus = []
+      CSV.foreach(filename) do |row|
+        id, title, width = row
+        Menu.new(id.to_i, title.to_s, width.to_i)
+      end
+    end
+
+    def save_menus(filename='menus.csv')
+      CSV.open(filename, 'wb') do |csv|
+        @@menus.each do |menu|
+          csv << [menu.id, menu.title, menu.width]
+        end
+
+      end
+    end
+
+    def get_menu(menu_id)
+      menu = @@menus.detect{ |menu|
+        menu.id == menu_id
+      }
+      loop do
+        draw(menu)
+        process(STDIN.gets.chomp, menu.menu_items)
+      end
     end
   end
 
-  def load_menu
+  def get_menu(orientation=:vertical)
     menu = self
     loop do
-      draw(menu)
+      draw(menu, orientation)
       process(STDIN.gets.chomp, menu.menu_items)
     end
   end
 
   def process(selection, menu_items)
-    case selection
-      when '1'
+    case selection.to_i
+      when (1..menu_items.length)
         menu_item = menu_items.detect{ |menu_item|
-          menu_item.key == '1'
+          menu_item.key == selection
         }
         eval(menu_item.route)
-        # input_students
-      when '2'
-        menu_item = menu_items.detect{ |menu_item|
-          menu_item.key == '2'
-        }
-        eval(menu_item.route)
-        # show_students
-      when '3'
-        menu_item = menu_items.detect{ |menu_item|
-          menu_item.key == '3'
-        }
-        eval(menu_item.route)
-        # save_students
-      when '4'
-        menu_item = menu_items.detect{ |menu_item|
-          menu_item.key == '4'
-        }
-        eval(menu_item.route)
-        # load_students
-      when '5'
+      when menu_items.length + 1
         exit # This will cause the program to terminate
       else
         puts "I don't know what you meant, try again."
     end
   end
 
-  def draw(menu)
+  def draw(menu, orientation)
     header
-    menu(menu.menu_items)
+    orientation == :vertical ? vertical_menu(menu.menu_items) : horizontal_menu(menu.menu_items)
     footer(@menu_items)
   end
 
@@ -88,11 +90,18 @@ class Menu
     divider
   end
 
-  def menu(items)
+  def vertical_menu(items)
     items.each {|item|
       puts "#{item.key}. #{item.title}"
     }
     puts "#{items.length + 1}. Exit"
+  end
+
+  def horizontal_menu(items)
+    items.each {|item|
+      print "  [#{item.key}] #{item.title}  "
+    }
+    print "  [#{items.length + 1}] Exit  "
   end
 
   def footer(objects)
