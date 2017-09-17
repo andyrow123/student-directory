@@ -1,7 +1,8 @@
 class List
-  @@lists = Array.new
 
-  attr_accessor :id, :title, :width, :data_source, :keys, :data
+  @@lists = []
+
+  attr_accessor :id, :title, :width, :data_source, :keys, :data, :list_menu
 
   def initialize(id, title, width, data_source, keys, data=[], list_menu)
     @id = id
@@ -17,23 +18,41 @@ class List
     @@lists << self
   end
 
-  def self.all
-    @@lists
-  end
+  class << self
+    def all
+      @@lists
+    end
 
-  def self.load_list(list_id)
-    list = @@lists.detect{ |list|
-      list.id == list_id
-    }
-    # list.draw
-    loop do
-      list.draw
-      @list_menu.load_menu(:horizontal)
-      input = STDIN.gets.chomp
-      break if input == 'b'
-      list.process(input)
+    def get_list(list_id)
+      list = @@lists.detect{ |list|
+        list.id == list_id
+      }
+      @list_menu = list.list_menu
+      # list.draw
+      loop do
+        list.draw
+        @list_menu.display_menu(:horizontal)
+        input = STDIN.gets.chomp
+        break if input == 'b'
+        list.process(input)
+      end
+    end
+
+    def find(list_id)
+      @@lists.detect{ |list|
+        list.id == list_id
+      }
+    end
+
+    def draw(list)
+      get_data(list.data_source)
+      header
+      list(list.keys, list.data)
+      footer(list.data)
     end
   end
+
+
 
   def process(selection)
     case selection
@@ -45,19 +64,6 @@ class List
       else
         puts "I don't know what you meant, try again."
     end
-  end
-
-  def self.find(list_id)
-    @@lists.detect{ |list|
-      list.id == list_id
-    }
-  end
-
-  def self.draw(list)
-    get_data(list.data_source)
-    header
-    list(list.keys, list.data)
-    footer(list.data)
   end
 
   def draw
@@ -82,12 +88,8 @@ class List
     divider
     puts "Overall, we have #{objects.count} great #{objects.count < 2 ? 'student' : 'students'}"
     divider
-    puts 'Menu - | [b] Back | [number] View Record'
 
   end
-
-
-  private
 
   def get_data(data_source)
     data = eval(data_source)
@@ -101,6 +103,10 @@ class List
     data
     # calculate_col_widths(@data, @headings)
   end
+
+
+  private
+
 
   def calculate_col_widths(data, headings)
     widths = []
@@ -180,7 +186,7 @@ class List
     # print each group heading and result array to screen
     grouped_results.each {|grouped_result|
       # puts the heading to screen
-      puts "*#{grouped_result[0].to_s.capitalize}*"
+      puts "-#{grouped_result[0].to_s.capitalize}-".center(@width)
       # goes through each headings grouped results
       grouped_result[1].each do |result|
         str_arr = [c]

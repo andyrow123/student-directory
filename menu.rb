@@ -1,13 +1,17 @@
-class Menu
-  @@menus = Array.new
+require './base'
 
-  attr_accessor :id, :title, :width, :menu_items
+class Menu < Base
 
-  def initialize(id, title, width, menu_items=[])
+  @@menus = []
+
+  attr_accessor :id, :title, :width, :menu_items, :type
+
+  def initialize(id, title, width, menu_items = [], type = :vertical)
     @id = id
     @title = title
     @width = width
-    @menu_items = menu_items
+    @menu_items = MenuItem.get_by_menu_id(id)
+    @type = type
     @@menus << self
   end
 
@@ -18,44 +22,51 @@ class Menu
       @@menus
     end
 
-    def find(menu_id)
+    def find(key, value)
       @@menus.detect{ |menu|
-        menu.id == menu_id
+        eval("menu.#{key}") == value
       }
     end
 
     def load_menus(filename='menus.csv')
       @@menus = []
-      CSV.foreach(filename) do |row|
+
+      self.load_csv(filename) {|row|
         id, title, width = row
         Menu.new(id.to_i, title.to_s, width.to_i)
-      end
+      }
+      Menu.log(:screen, :info, "Successfully loaded #{@@menus.length} menus from #{filename}.")
+
     end
 
     def save_menus(filename='menus.csv')
-      CSV.open(filename, 'wb') do |csv|
+      self.load_csv(filename) {|csv|
         @@menus.each do |menu|
           csv << [menu.id, menu.title, menu.width]
         end
-
-      end
+      }
+      Menu.log(:screen, :info, "Successfully Saved #{filename}")
     end
 
-    def get_menu(menu_id)
-      menu = @@menus.detect{ |menu|
-        menu.id == menu_id
-      }
+    def display_menu
+      menu = self
       loop do
-        draw(menu)
+        draw(menu, menu.type)
         process(STDIN.gets.chomp, menu.menu_items)
       end
     end
+
+    def draw(orientation)
+      header
+      orientation == :vertical ? vertical_menu(self.menu_items) : horizontal_menu(self.menu_items)
+      footer(@menu_items)
+    end
   end
 
-  def get_menu(orientation=:vertical)
+  def display_menu(orientation)
     menu = self
     loop do
-      draw(menu, orientation)
+      menu.draw(orientation)
       process(STDIN.gets.chomp, menu.menu_items)
     end
   end
@@ -64,8 +75,10 @@ class Menu
     case selection.to_i
       when (1..menu_items.length)
         menu_item = menu_items.detect{ |menu_item|
-          menu_item.key == selection
+          menu_item.keypress == selection
         }
+
+        Menu.log(:screen, :info, "Successfully loaded #{menu_item.title}")
         eval(menu_item.route)
       when menu_items.length + 1
         exit # This will cause the program to terminate
@@ -74,10 +87,14 @@ class Menu
     end
   end
 
-  def draw(menu, orientation)
-    header
-    orientation == :vertical ? vertical_menu(menu.menu_items) : horizontal_menu(menu.menu_items)
-    footer(@menu_items)
+  def draw(orientation)
+    if orientation == :vertical
+      header
+      vertical_menu(self.menu_items)
+      footer(@menu_items)
+    else
+      horizontal_menu(self.menu_items)
+    end
   end
 
   def divider
@@ -92,16 +109,16 @@ class Menu
 
   def vertical_menu(items)
     items.each {|item|
-      puts "#{item.key}. #{item.title}"
+      puts "#{item.keypress}. #{item.title}"
     }
-    puts "#{items.length + 1}. Exit"
+    # puts "#{items.length + 1}. Exit"
   end
 
   def horizontal_menu(items)
     items.each {|item|
-      print "  [#{item.key}] #{item.title}  "
+      print "  [#{item.keypress}] #{item.title}  "
     }
-    print "  [#{items.length + 1}] Exit  "
+    print "\n"
   end
 
   def footer(objects)
@@ -111,26 +128,78 @@ class Menu
   end
 end
 
-class MenuItem
+class MenuItem < Base
   @@menu_items = Array.new
 
-  attr_accessor :title, :key, :menu_id, :route
-  def initialize(title, key, menu_id, route)
+  attr_accessor :title, :keypress, :menu_id, :route
+  def initialize(title, keypress, menu_id, route)
     @title = title
-    @key = key
+    @keypress = keypress
     @menu_id = menu_id
     @route = route
     @@menu_items << self
   end
 
-  def self.all
-    @@menu_items
-  end
+  class << self
 
-  def self.find_by_key(key)
-    @@menu_items.detect{ |menu_item|
-      menu_item.key == key
-    }
+    def find(key, value)
+      @@menu_items.select{ |menu|
+        eval("menu.#{key}") == value
+      }
+    end
+
+    def all
+      @@menu_items
+    end
+
+    # def find_by_keypress(keypress)
+    #   @@menu_items.detect{ |menu_item|
+    #     menu_item.key == keypress
+    #   }
+    # end
+
+    def load_menu_items(filename='menu_items.csv')
+      @@menu_items = []
+
+      self.load_csv(filename) {|row|
+        title, key, menu_id, route = row
+        MenuItem.new(title.to_s, key.to_s, menu_id.to_i, route.to_s)
+      }
+
+      # FileUtils.load_csv(filename) { |row|
+      #   id, title, width = row
+      #   Menu.new(id.to_i, title.to_s, width.to_i)
+      # }
+      # CSV.foreach(filename) do |row|
+      #   id, title, width = row
+      #   Menu.new(id.to_i, title.to_s, width.to_i)
+      # end
+    end
+
+    def save_menu_items(filename='menu_items.csv')
+      self.save_csv(filename) {|csv|
+        @@menu_items.each do |menu_item|
+          csv << [menu_item.title, menu_item.key, menu_item.menu_id, menu_item.route]
+        end
+      }
+
+      # FileUtils.save_csv(filename) { |csv|
+      #   @@menus.each do |menu|
+      #     csv << [menu.id, menu.title, menu.width]
+      #   end
+      # }
+      # CSV.open(filename, 'wb') do |csv|
+      #   @@menus.each do |menu|
+      #     csv << [menu.id, menu.title, menu.width]
+      #   end
+      #
+      # end
+    end
+
+
+    def get_by_menu_id(menu_id)
+      MenuItem.find(:menu_id, menu_id)
+    end
   end
 
   def as_json(options={})

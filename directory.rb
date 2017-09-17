@@ -2,101 +2,34 @@ require './menu.rb'
 require './list.rb'
 require './student.rb'
 
-# require 'json'
-#
-# def json_file_save(filename, data)
-#   File.open("#{filename}",'w') do |f|
-#     f.write(data.to_json)
-#   end
-# end
-
 def try_load_students
   filename = ARGV.first # load the first argument from the command line
-  return if filename.nil? # get out of the method if it isn't given
+  return Student.log(:screen, :error, 'Command-line filename is nil. Load manually') if filename.nil? # get out of the method if it isn't given
   if File.exists?(filename) # if it exists
     Student.load_students(filename)
-    puts "Loaded #{@students.count} from #{filename}"
+    Student.log(:screen, :info, "Successfully loaded #{Student.all.length} students from #{filename}.")
   else # if it doesn't exist
-    puts "Sorry, #{filename} does not exist."
+    Student.log(:screen, :error, "Sorry #{filename} does not exist.")
     exit # quit program
   end
 end
 
-def load_csv(filename, &block)
-  CSV.foreach(filename) do |row|
-    block.call(row)
-  end
-end
-
-def save_csv(filename, &block)
-  CSV.open(filename, 'wb') do |csv|
-    block.call(csv)
-  end
-end
-# hold students in an array
-@students = []
-
-
-@main_menu_items = []
-@main_menu_items << MenuItem.new('Input the students', '1', 1,'Student.add_students')
-@main_menu_items << MenuItem.new('Show the students', '2', 1, 'List.load_list(1)')
-@main_menu_items << MenuItem.new('Save the list to students.csv', '3', 1, 'Student.save_students')
-@main_menu_items << MenuItem.new('Load the list from students.csv', '4', 1, 'Student.load_students')
-
-@list_menu_items = []
-@list_menu_items << MenuItem.new('Back', 'b', 2,'List.')
-@list_menu_items << MenuItem.new('Sort', 's', 2, 'List.')
-@list_menu_items << MenuItem.new('Filter', 'f', 2, 'Student.save_students')
-@list_menu_items << MenuItem.new('Group', 'g', 2, 'Student.load_students')
-
 def main_app
-  # puts Student[]
-  student_list = List.new(1,'The Students of Villains Academy', 67, 'Student.all', Student.keys, @students)
-  main_menu = Menu.new(1,'Main Menu', 67, @main_menu_items)
-  list_menu = Menu.new(2, 'List Menu', 67, @list_menu_items)
+  # load menus
+  MenuItem.load_menu_items
+  Menu.load_menus
 
-  main_menu.get_menu
+  list_menu = Menu.find(:id, 2)
 
-  # Student.load_menu()
+  # create list object
+  student_list = List.new(1,'The Students of Villains Academy', 80, 'Student.all', Student.keys, [], list_menu)
+
+  # find main menu
+  main_menu = Menu.find(:id, 1)
+  # display main menu
+  main_menu.display_menu(:vertical)
+
 end
 
 try_load_students
 main_app
-
-
-
-# @students << Student.new('Dr. Hannibal Lecter', 'M', 55, :november)
-# @students << Student.new('Darth Vader', 'M', 100, :december)
-# @students << Student.new('Nurse Ratched', 'F', 36, :november)
-# @students << Student.new('Michael Corleone', 'M', 55, :december)
-# @students << Student.new('Alex DeLarge', 'M', 70, :november)
-# @students << Student.new('The Wicked Witch of the West', 'F', 35, :december)
-# @students << Student.new('Terminator', 'M', 120, :november)
-# @students << Student.new('Freddy Krueger', 'M', 7, :december)
-# @students << Student.new('The Joker', 'M', 20, :november)
-# @students << Student.new('Joffery Baratheon', 'M', 16, :december)
-# @students << Student.new('Norman Bates', 'M', 60, :november)
-
-# json_file_save('students.json', @students)
-
-# json_file_save('main_menu_items.json', @main_menu_items)
-
-
-
-
-
-# # create an empty array
-# students = []
-#
-# puts 'Please enter the names of the student'
-# # get the full name
-# name = gets.chomp
-#
-# while name.empty?
-#   puts 'You need to enter a name'
-#   puts 'Please enter the names of the students'
-#   # get the full name
-#   name = gets.chomp
-# end
-#
-# puts name

@@ -1,6 +1,8 @@
-class Student
-  require 'csv'
+require './base'
+class Student < Base
+
   @@students = []
+
   attr_accessor :name, :sex, :age, :cohort
 
   def initialize(name='*empty*', sex='*empty*', age='*empty*', cohort='*empty*')
@@ -24,19 +26,22 @@ class Student
 
     def load_students(filename='students.csv')
       @@students = []
-      CSV.foreach(filename) do |row|
+
+      self.load_csv(filename) {|row|
         name, sex, age, cohort = row
         Student.new(name.to_s, sex.to_s, age.to_i, cohort.to_sym)
-      end
+      }
+      Student.log(:screen, :info, "Successfully loaded #{@@students.length} students from #{filename}.")
+
     end
 
     def save_students(filename='students.csv')
-      CSV.open(filename, 'wb') do |csv|
+      self.save_csv(filename) {|csv|
         @@students.each do |student|
           csv << [student.name, student.sex, student.age, student.cohort]
         end
-
-      end
+      }
+      Menu.log(:screen, :info, "Successfully Saved #{filename}")
     end
 
     def add_students
@@ -59,12 +64,8 @@ class Student
 
     def commit_student(student)
       new_student = Student.new(student[:name], student[:sex], student[:age], student[:cohort])
-      success(new_student)
-    end
-
-    def success(student)
-      puts "You have added #{student.name} to the list, in the #{student.cohort} cohort\n"
-      puts "You have added #{@@students.count} student#{'s' if @@students.count > 1}. Type in another name to add or press return to proceed"
+      Student.log( :screen,:info, "You have added #{student.name} to the list, in the #{student.cohort} cohort\n")
+      Student.log(:screen, :info, "You have added #{@@students.count} student#{'s' if @@students.count > 1}. Type in another name to add or press return to proceed")
     end
 
   end
