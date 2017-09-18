@@ -1,0 +1,17 @@
+Input Students,1,1,Student.add_students
+Show Students,2,1,List.get_list(1)
+Save students,3,1,"Student.save_students(file_check=true)"
+Load students,4,1,"Student.load_students(file_check=true)"
+Exit,5,1,exit
+Back,b,2,Menu.get_menu(1)
+Sort,s,2,List.get_list(1)
+Filter,f,2,List.get_list(1)
+Group,g,2,List.get_list(1)
+directory.rb,d,3,"puts File.read('./directory.rb')"
+Base Class,b,3,"puts File.read('./classes/base.rb')"
+Student Class,s,3,"puts File.read('./classes/student.rb')"
+Menu Class,m,3,"puts File.read('./classes/menu.rb')"
+List Class,l,3,"puts File.read('./classes/list.rb')"
+File Handler Class,f,3,"puts File.read('./classes/file_handler.rb')"
+Log Class,o,3,"puts File.read('./classes/log.rb')"
+Continue to Application,c,3,Menu.get_menu(1)
