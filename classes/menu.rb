@@ -107,7 +107,7 @@ class Menu < Base
 
   def header
     divider
-    puts "#{@title} - #{@id}".center(@width)
+    puts "#{@title}".center(@width)
     divider
   end
 
