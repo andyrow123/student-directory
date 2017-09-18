@@ -54,6 +54,9 @@ class Student < Base
       until student[:name].empty? do
         # keys.shift
         keys[1..-1].each {|key| student[key.to_sym] = question(key) }
+        student.each{|item|
+          item[1] << '**Empty**' if item[1].empty?
+        }
         commit_student(student)
         student[:name] = STDIN.gets.strip
       end

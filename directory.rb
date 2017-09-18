@@ -28,8 +28,8 @@ def main_app
   List.new(1,'The Students of Villains Academy', 84, 'Student.all', Student.keys, [], list_menu)
 
   source_menu.get_menu(:vertical)
-  # display main menu
-  main_menu.get_menu(:vertical)
+  # # display main menu
+  # main_menu.get_menu(:vertical)
 
 end
 

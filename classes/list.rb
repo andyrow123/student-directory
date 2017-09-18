@@ -170,6 +170,20 @@ class List < Base
     sorted_result = data.sort_by { |item|
       eval("item.#{sort_by}")
     }
+
+    sorted_results_print(sorted_result)
+    # c = 1
+    # sorted_result.each do |result|
+    #   str_arr = [c]
+    #   # adds each result entry to the string array
+    #   keys.each{|key| str_arr <<  eval("result.#{key}") }
+    #   # applies formatting and puts result to screen
+    #   puts @format_str % str_arr
+    #   c += 1
+    # end
+  end
+
+  def sorted_results_print(sorted_result)
     c = 1
     sorted_result.each do |result|
       str_arr = [c]
@@ -191,22 +205,29 @@ class List < Base
     # group by column
     # data.group_by { |lst_obj| eval("lst_obj.#{group_by}") }.map {|grouped_by, array| grouped_results[grouped_by] = array }
     # List selection counter
+
+    grouped_results_print(grouped_results)
+
+  end
+
+  def grouped_results_print(grouped_results)
+    grouped = []
     c = 1
     # print each group heading and result array to screen
-    grouped_results.each {|grouped_result|
+    grouped_results.each do |grouped_result|
       # puts the heading to screen
       puts "-#{grouped_result[0].to_s.capitalize}-".center(@width)
-      # goes through each headings grouped results
-      grouped_result[1].each do |result|
+      # goes through each grouped headings results
+      grouped_result[1].each do |item|
         str_arr = [c]
         # adds each result entry to the string array
-        keys.each{|key| str_arr <<  eval("result.#{key}") }
+        keys.each{|key| str_arr <<  eval("item.#{key}") }
         # applies formatting and puts result to screen
         puts @format_str % str_arr
         c += 1
       end
-    }
-    grouped_results
+    end
+    grouped
   end
 
   def list_filter(data, filters)
