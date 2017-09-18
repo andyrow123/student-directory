@@ -1,4 +1,6 @@
-class List
+require './classes/base'
+
+class List < Base
 
   @@lists = []
 
@@ -31,7 +33,7 @@ class List
       # list.draw
       loop do
         list.draw
-        @list_menu.display_menu(:horizontal)
+        @list_menu.get_menu(:horizontal)
         input = STDIN.gets.chomp
         break if input == 'b'
         list.process(input)
@@ -44,11 +46,13 @@ class List
       }
     end
 
-    def draw(list)
+    def draw(list, filters='', group_by='name')
+      List.log(:screen, :info, "Successfully loaded #{list.title}")
+
       get_data(list.data_source)
-      header
-      list(list.keys, list.data)
-      footer(list.data)
+      list.header
+      list(list.keys, list.data, filters, group_by)
+      list.footer(list.data)
     end
   end
 
@@ -66,10 +70,11 @@ class List
     end
   end
 
-  def draw
+  def draw(filters='', group_by='name')
+    List.log(:screen, :info, 'Successfully loaded list.')
     get_data(@data_source)
     header
-    list(@keys, @data)
+    list(@keys, @data, filters, group_by)
     footer(@data)
   end
 
@@ -112,13 +117,13 @@ class List
     widths = []
     headings.each {|heading|
       if heading.empty?
-        widths << 3
+        widths << 4
       else
         col_values = []
         data.map {|item|
           col_values << eval("item.#{heading}.to_s")
         }
-        widths << col_values.max_by(&:length).length + 6
+        widths << col_values.max_by(&:length).length + 10
       end
     }
     @width = widths.inject(:+)
@@ -146,7 +151,6 @@ class List
   end
 
   def list(keys, data, filters='', group_by='name')
-    # if !filters.empty?
     # filters the data using specified filters
     result = list_filter(data, filters)
     # applies formatting to the column headings and puts to screen
@@ -163,23 +167,28 @@ class List
   end
 
   def sort_list_entries(data, sort_by)
-    data.sort_by { |item|
+    sorted_result = data.sort_by { |item|
       eval("item.#{sort_by}")
     }
+    c = 1
+    sorted_result.each do |result|
+      str_arr = [c]
+      # adds each result entry to the string array
+      keys.each{|key| str_arr <<  eval("result.#{key}") }
+      # applies formatting and puts result to screen
+      puts @format_str % str_arr
+      c += 1
+    end
   end
 
   def group_list_entries(data, group_by)
     grouped_results = {}
 
     # order and group alphabetically
-    data.sort_by { |item|
-      eval("item.#{group_by}")
-    }.group_by{|item|
-      eval("item.#{group_by}[0]")
-      # filter[0]
-    }.map {|grouped_by, array| grouped_results[grouped_by] = array }
+    data.sort_by { |item| eval("item.#{group_by}") }.group_by{|item| eval("item.#{group_by}[0]") }
+        .map {|grouped_by, array| grouped_results[grouped_by] = array }
 
-    # group by key
+    # group by column
     # data.group_by { |lst_obj| eval("lst_obj.#{group_by}") }.map {|grouped_by, array| grouped_results[grouped_by] = array }
     # List selection counter
     c = 1

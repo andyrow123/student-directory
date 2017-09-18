@@ -1,7 +1,10 @@
-require './base'
+require './classes/base'
 class Student < Base
 
   @@students = []
+  @@possible_cohorts = [:January, :February, :March,
+                       :April, :May, :June, :July, :August, :September,
+                       :October, :November, :December]
 
   attr_accessor :name, :sex, :age, :cohort
 
@@ -24,19 +27,18 @@ class Student < Base
       %w(name sex age cohort)
     end
 
-    def load_students(filename='students.csv')
+    def load_students(file_check=false, filename='students.csv')
       @@students = []
-
-      self.load_csv(filename) {|row|
+      load_csv(file_check, filename) {|row|
         name, sex, age, cohort = row
         Student.new(name.to_s, sex.to_s, age.to_i, cohort.to_sym)
       }
-      Student.log(:screen, :info, "Successfully loaded #{@@students.length} students from #{filename}.")
 
+      Student.log(:screen, :info, "Successfully loaded #{@@students.length} students from #{filename}.")
     end
 
-    def save_students(filename='students.csv')
-      self.save_csv(filename) {|csv|
+    def save_students(file_check=true, filename='students.csv')
+      save_csv(file_check, filename) {|csv|
         @@students.each do |student|
           csv << [student.name, student.sex, student.age, student.cohort]
         end
@@ -63,15 +65,11 @@ class Student < Base
     end
 
     def commit_student(student)
-      new_student = Student.new(student[:name], student[:sex], student[:age], student[:cohort])
-      Student.log( :screen,:info, "You have added #{student.name} to the list, in the #{student.cohort} cohort\n")
+      Student.new(student[:name], student[:sex], student[:age], student[:cohort])
+      Student.log( :screen,:info, "You have added #{student[:name]} to the list, in the #{student[:cohort]} cohort\n")
       Student.log(:screen, :info, "You have added #{@@students.count} student#{'s' if @@students.count > 1}. Type in another name to add or press return to proceed")
     end
 
-  end
-
-  def keys
-    %w(name sex age cohort)
   end
 
   def as_json(options={})

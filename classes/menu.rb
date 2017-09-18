@@ -1,4 +1,4 @@
-require './base'
+require './classes/base'
 
 class Menu < Base
 
@@ -28,10 +28,10 @@ class Menu < Base
       }
     end
 
-    def load_menus(filename='menus.csv')
+    def load_menus(file_check, filename='menus.csv')
       @@menus = []
 
-      self.load_csv(filename) {|row|
+      self.load_csv(file_check, filename) {|row|
         id, title, width = row
         Menu.new(id.to_i, title.to_s, width.to_i)
       }
@@ -39,8 +39,8 @@ class Menu < Base
 
     end
 
-    def save_menus(filename='menus.csv')
-      self.load_csv(filename) {|csv|
+    def save_menus(file_check, filename='menus.csv')
+      self.load_csv(file_check, filename) {|csv|
         @@menus.each do |menu|
           csv << [menu.id, menu.title, menu.width]
         end
@@ -48,22 +48,24 @@ class Menu < Base
       Menu.log(:screen, :info, "Successfully Saved #{filename}")
     end
 
-    def display_menu
-      menu = self
+    def get_menu(menu_id)
+      menu = @@menus.detect{ |menu|
+        menu.id == menu_id
+      }
       loop do
         draw(menu, menu.type)
-        process(STDIN.gets.chomp, menu.menu_items)
+        menu.process(STDIN.gets.chomp, menu.menu_items)
       end
     end
 
-    def draw(orientation)
-      header
-      orientation == :vertical ? vertical_menu(self.menu_items) : horizontal_menu(self.menu_items)
-      footer(@menu_items)
+    def draw(menu, orientation)
+      menu.header
+      orientation == :vertical ? menu.vertical_menu(menu.menu_items) : menu.horizontal_menu(menu.title, menu.menu_items)
+      menu. footer(@menu_items)
     end
   end
 
-  def display_menu(orientation)
+  def get_menu(orientation)
     menu = self
     loop do
       menu.draw(orientation)
@@ -72,14 +74,16 @@ class Menu < Base
   end
 
   def process(selection, menu_items)
-    case selection.to_i
+    if selection.is_i?
+      selection = selection.to_i
+    end
+    case selection
       when (1..menu_items.length)
-        menu_item = menu_items.detect{ |menu_item|
-          menu_item.keypress == selection
-        }
-
-        Menu.log(:screen, :info, "Successfully loaded #{menu_item.title}")
+        menu_item = menu_items.detect{ |menu_item| menu_item.keypress == selection.to_s }
         eval(menu_item.route)
+      when ('a'..'z')
+        menu_item = menu_items.detect{ |menu_item| menu_item.keypress == selection }
+        menu_item.nil? ? (puts "I don't know what you meant, try again.") : eval(menu_item.route)
       when menu_items.length + 1
         exit # This will cause the program to terminate
       else
@@ -93,7 +97,7 @@ class Menu < Base
       vertical_menu(self.menu_items)
       footer(@menu_items)
     else
-      horizontal_menu(self.menu_items)
+      horizontal_menu(self.title,self.menu_items)
     end
   end
 
@@ -109,14 +113,15 @@ class Menu < Base
 
   def vertical_menu(items)
     items.each {|item|
-      puts "#{item.keypress}. #{item.title}"
+      puts "[#{item.keypress}] #{item.title}"
     }
     # puts "#{items.length + 1}. Exit"
   end
 
-  def horizontal_menu(items)
+  def horizontal_menu(title, items)
+    print "#{title} - "
     items.each {|item|
-      print "  [#{item.keypress}] #{item.title}  "
+      print "[#{item.keypress}] #{item.title}   "
     }
     print "\n"
   end
@@ -152,48 +157,21 @@ class MenuItem < Base
       @@menu_items
     end
 
-    # def find_by_keypress(keypress)
-    #   @@menu_items.detect{ |menu_item|
-    #     menu_item.key == keypress
-    #   }
-    # end
-
-    def load_menu_items(filename='menu_items.csv')
+    def load_menu_items(file_check=false, filename='menu_items.csv')
       @@menu_items = []
 
-      self.load_csv(filename) {|row|
+      load_csv(file_check, filename) {|row|
         title, key, menu_id, route = row
         MenuItem.new(title.to_s, key.to_s, menu_id.to_i, route.to_s)
       }
-
-      # FileUtils.load_csv(filename) { |row|
-      #   id, title, width = row
-      #   Menu.new(id.to_i, title.to_s, width.to_i)
-      # }
-      # CSV.foreach(filename) do |row|
-      #   id, title, width = row
-      #   Menu.new(id.to_i, title.to_s, width.to_i)
-      # end
     end
 
-    def save_menu_items(filename='menu_items.csv')
-      self.save_csv(filename) {|csv|
+    def save_menu_items(file_check=true, filename='menu_items.csv')
+      save_csv(file_check, filename) {|csv|
         @@menu_items.each do |menu_item|
           csv << [menu_item.title, menu_item.key, menu_item.menu_id, menu_item.route]
         end
       }
-
-      # FileUtils.save_csv(filename) { |csv|
-      #   @@menus.each do |menu|
-      #     csv << [menu.id, menu.title, menu.width]
-      #   end
-      # }
-      # CSV.open(filename, 'wb') do |csv|
-      #   @@menus.each do |menu|
-      #     csv << [menu.id, menu.title, menu.width]
-      #   end
-      #
-      # end
     end
 
 

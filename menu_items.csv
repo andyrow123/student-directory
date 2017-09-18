@@ -1,8 +1,0 @@
-Input Students,1,1,Student.add_students
-Show Students,2,1,List.get_list(1)
-Save students.csv,3,1,Student.save_students
-Load students.csv,4,1,Student.load_students
-Back,b,2,List.
-Sort,s,2,List.
-Filter,f,2,Student.save_students
-Group,g,2,Student.load_students

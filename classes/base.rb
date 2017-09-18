@@ -1,5 +1,12 @@
-require './file_handler'
-require './log'
+require './classes/file_handler'
+require './classes/log'
+
+class String
+  def is_i?
+    /\A[-+]?\d+\z/ === self
+  end
+end
+
 
 class Base
   @@logger = Log.new
@@ -14,14 +21,14 @@ class Base
       end
     end
 
-    def load_csv(filename, &block)
-      FileHandler.load_csv(filename) { |row|
+    def load_csv(file_check, filename, &block)
+      FileHandler.load_csv(file_check, filename) { |row|
         block.call(row)
       }
     end
 
-    def save_csv(filename, &block)
-      FileHandler.save_csv(filename) { |csv|
+    def save_csv(file_check, filename, &block)
+      FileHandler.save_csv(file_check, filename) { |csv|
         block.call(csv)
       }
     end
