@@ -52,30 +52,30 @@ class Menu < Base
         menu.id == menu_id
       }
       loop do
-        menu.draw(menu.type)
+        menu.draw
         menu.process(STDIN.gets.chomp, menu.menu_items)
       end
     end
 
-    # def draw(menu, orientation)
-    #   # menu.header
-    #   # orientation == :vertical ? menu.vertical_menu(menu.menu_items) : menu.horizontal_menu(menu.title, menu.menu_items)
-    #   # menu. footer(@menu_items)
-    #
-    #   if orientation == :vertical
-    #     menu.header
-    #     menu.vertical_menu(menu.menu_items)
-    #     menu.footer(@menu_items)
-    #   else
-    #     menu.horizontal_menu(menu.title, menu.menu_items)
-    #   end
-    # end
+    def draw(menu)
+      # menu.header
+      # orientation == :vertical ? menu.vertical_menu(menu.menu_items) : menu.horizontal_menu(menu.title, menu.menu_items)
+      # menu. footer(@menu_items)
+
+      if orientation == :vertical
+        menu.header
+        menu.vertical_menu(menu.menu_items)
+        menu.footer(@menu_items)
+      else
+        menu.horizontal_menu(menu.title, menu.menu_items)
+      end
+    end
   end
 
-  def get_menu(orientation)
+  def get_menu
     menu = self
     loop do
-      menu.draw(orientation)
+      menu.draw
       process(STDIN.gets.chomp, menu.menu_items)
     end
   end
@@ -98,8 +98,8 @@ class Menu < Base
     end
   end
 
-  def draw(orientation)
-    if orientation == :vertical
+  def draw
+    if self.type == :vertical
       header
       vertical_menu(self.menu_items)
       footer(@menu_items)

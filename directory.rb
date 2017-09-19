@@ -50,7 +50,7 @@ def main_app
   }
   group_menu.menu_items << MenuItem.new(last_id, 'Back', (student_keys.length + 1).to_s, sort_menu.id, "Menu.get_menu(2)" )
 
-  source_menu.get_menu(:vertical)
+  source_menu.get_menu
   # # display main menu
   # main_menu.get_menu(:vertical)
 

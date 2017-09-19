@@ -34,7 +34,7 @@ class List < Base
       # list.draw
       loop do
         list.draw(filters, key, sort_or_group)
-        @list_menu.get_menu(:horizontal)
+        @list_menu.get_menu
         input = STDIN.gets.chomp
         break if input == 'b'
         list.process(input)
@@ -175,15 +175,6 @@ class List < Base
     @@last_sort = sort_by
 
     sorted_results_print(sorted_result)
-    # c = 1
-    # sorted_result.each do |result|
-    #   str_arr = [c]
-    #   # adds each result entry to the string array
-    #   keys.each{|key| str_arr <<  eval("result.#{key}") }
-    #   # applies formatting and puts result to screen
-    #   puts @format_str % str_arr
-    #   c += 1
-    # end
   end
 
   def sorted_results_print(sorted_result)
