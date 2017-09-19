@@ -62,6 +62,10 @@ class Student < Base
       end
     end
 
+    def keys
+      %w(name sex age cohort)
+    end
+
     def question(key)
       puts "Enter the students #{key}"
       STDIN.gets.strip

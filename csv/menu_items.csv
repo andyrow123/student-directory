@@ -1,17 +1,17 @@
-Input Students,1,1,Student.add_students
-Show Students,2,1,List.get_list(1)
-Save students,3,1,"Student.save_students(file_check=true)"
-Load students,4,1,"Student.load_students(file_check=true)"
-Exit,5,1,exit
-Back,b,2,Menu.get_menu(1)
-Sort,s,2,List.get_list(1)
-Filter,f,2,List.get_list(1)
-Group,g,2,List.get_list(1)
-directory.rb,d,3,"puts File.read('./directory.rb')"
-Base Class,b,3,"puts File.read('./classes/base.rb')"
-Student Class,s,3,"puts File.read('./classes/student.rb')"
-Menu Class,m,3,"puts File.read('./classes/menu.rb')"
-List Class,l,3,"puts File.read('./classes/list.rb')"
-File Handler Class,f,3,"puts File.read('./classes/file_handler.rb')"
-Log Class,o,3,"puts File.read('./classes/log.rb')"
-Continue to Application,c,3,Menu.get_menu(1)
+1,Input Students,1,1,Student.add_students
+2,Show Students,2,1,"List.get_list(1,'','sort')"
+3,Save students,3,1,"Student.save_students(file_check=true)"
+4,Load students,4,1,"Student.load_students(file_check=true)"
+5,Exit,5,1,exit
+6,Back,b,2,Menu.get_menu(1)
+7,Sort,s,2,Menu.get_menu(4)
+8,Group,g,2,Menu.get_menu(5)
+9,directory.rb,d,3,"puts File.read('./directory.rb')"
+10,Base Class,b,3,"puts File.read('./classes/base.rb')"
+11,Student Class,s,3,"puts File.read('./classes/student.rb')"
+12,Menu Class,m,3,"puts File.read('./classes/menu.rb')"
+13,List Class,l,3,"puts File.read('./classes/list.rb')"
+14,File Handler Class,f,3,"puts File.read('./classes/file_handler.rb')"
+15,Log Class,o,3,"puts File.read('./classes/log.rb')"
+16,Typos.rb,t,3,"puts File.read('./typos.rb')"
+17,Continue to Application,c,3,Menu.get_menu(1)

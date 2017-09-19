@@ -4,13 +4,13 @@ class Menu < Base
 
   @@menus = []
 
-  attr_accessor :id, :title, :width, :menu_items, :type
+  attr_accessor :id, :title, :width, :type, :menu_items
 
-  def initialize(id, title, width, menu_items = [], type = :vertical)
+  def initialize(id, title, width, type = :vertical, menu_items = [])
     @id = id
     @title = title
     @width = width
-    @menu_items = MenuItem.get_by_menu_id(id)
+    @menu_items = menu_items.empty? ? MenuItem.get_by_menu_id(id) : menu_items
     @type = type
     @@menus << self
   end
@@ -32,17 +32,16 @@ class Menu < Base
       @@menus = []
 
       self.load_csv(file_check, filename) {|row|
-        id, title, width = row
-        Menu.new(id.to_i, title.to_s, width.to_i)
+        id, title, width, type = row
+        Menu.new(id.to_i, title.to_s, width.to_i, type.to_sym)
       }
       Menu.log(:screen, :info, "Successfully loaded #{@@menus.length} menus from #{filename}.")
-
     end
 
     def save_menus(file_check, filename='menus.csv')
       self.load_csv(file_check, filename) {|csv|
         @@menus.each do |menu|
-          csv << [menu.id, menu.title, menu.width]
+          csv << [menu.id, menu.title, menu.width, menu.type]
         end
       }
       Menu.log(:screen, :info, "Successfully Saved #{filename}")
@@ -53,16 +52,24 @@ class Menu < Base
         menu.id == menu_id
       }
       loop do
-        draw(menu, menu.type)
+        menu.draw(menu.type)
         menu.process(STDIN.gets.chomp, menu.menu_items)
       end
     end
 
-    def draw(menu, orientation)
-      menu.header
-      orientation == :vertical ? menu.vertical_menu(menu.menu_items) : menu.horizontal_menu(menu.title, menu.menu_items)
-      menu. footer(@menu_items)
-    end
+    # def draw(menu, orientation)
+    #   # menu.header
+    #   # orientation == :vertical ? menu.vertical_menu(menu.menu_items) : menu.horizontal_menu(menu.title, menu.menu_items)
+    #   # menu. footer(@menu_items)
+    #
+    #   if orientation == :vertical
+    #     menu.header
+    #     menu.vertical_menu(menu.menu_items)
+    #     menu.footer(@menu_items)
+    #   else
+    #     menu.horizontal_menu(menu.title, menu.menu_items)
+    #   end
+    # end
   end
 
   def get_menu(orientation)
@@ -136,8 +143,9 @@ end
 class MenuItem < Base
   @@menu_items = Array.new
 
-  attr_accessor :title, :keypress, :menu_id, :route
-  def initialize(title, keypress, menu_id, route)
+  attr_accessor :id, :title, :keypress, :menu_id, :route
+  def initialize(id, title, keypress, menu_id, route)
+    @id = id
     @title = title
     @keypress = keypress
     @menu_id = menu_id
@@ -161,8 +169,8 @@ class MenuItem < Base
       @@menu_items = []
 
       load_csv(file_check, filename) {|row|
-        title, key, menu_id, route = row
-        MenuItem.new(title.to_s, key.to_s, menu_id.to_i, route.to_s)
+        id, title, key, menu_id, route = row
+        MenuItem.new(id.to_i,title.to_s, key.to_s, menu_id.to_i, route.to_s)
       }
     end
 
@@ -178,6 +186,11 @@ class MenuItem < Base
     def get_by_menu_id(menu_id)
       MenuItem.find(:menu_id, menu_id)
     end
+
+    def last_id
+      (@@menu_items.last).id
+    end
+
   end
 
   def as_json(options={})

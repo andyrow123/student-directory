@@ -12,6 +12,13 @@ class Base
   @@logger = Log.new
 
   class << self
+
+    def find_by_id(array, array_id)
+      array.detect{ |arr|
+        arr.id == array_id
+      }
+    end
+
     def log(output, type, message)
       if !@@logger.types.include?(type)
         @@logger.error(output, "Type - #{type.to_s} - not found.")

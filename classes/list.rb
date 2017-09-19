@@ -3,6 +3,7 @@ require './classes/base'
 class List < Base
 
   @@lists = []
+  @@last_sort = 'name'
 
   attr_accessor :id, :title, :width, :data_source, :keys, :data, :list_menu
 
@@ -25,14 +26,14 @@ class List < Base
       @@lists
     end
 
-    def get_list(list_id)
+    def get_list(list_id, filters='', sort_or_group = :sort, key=@@last_sort)
       list = @@lists.detect{ |list|
         list.id == list_id
       }
       @list_menu = list.list_menu
       # list.draw
       loop do
-        list.draw
+        list.draw(filters, key, sort_or_group)
         @list_menu.get_menu(:horizontal)
         input = STDIN.gets.chomp
         break if input == 'b'
@@ -40,41 +41,41 @@ class List < Base
       end
     end
 
-    def find(list_id)
-      @@lists.detect{ |list|
-        list.id == list_id
-      }
-    end
+    # def find(list_id)
+    #   @@lists.detect{ |list|
+    #     list.id == list_id
+    #   }
+    # end
 
-    def draw(list, filters='', group_by='name')
+    def draw(list, filters, key, sort_or_group)
       List.log(:screen, :info, "Successfully loaded #{list.title}")
 
       get_data(list.data_source)
       list.header
-      list(list.keys, list.data, filters, group_by)
+      list(list.keys, list.data, filters, key, sort_or_group)
       list.footer(list.data)
     end
   end
 
 
 
-  def process(selection)
-    case selection
-      when '1'
-        # menu_item = menu_items.detect{ |menu_item|
-        #   menu_item.key == '1'
-        # }
-        # eval(menu_item.route)
-      else
-        puts "I don't know what you meant, try again."
-    end
-  end
+  # def process(selection)
+  #   case selection
+  #     when '1'
+  #       # menu_item = menu_items.detect{ |menu_item|
+  #       #   menu_item.key == '1'
+  #       # }
+  #       # eval(menu_item.route)
+  #     else
+  #       puts "I don't know what you meant, try again."
+  #   end
+  # end
 
-  def draw(filters='', group_by='name')
+  def draw(filters='', key, sort_or_group)
     List.log(:screen, :info, 'Successfully loaded list.')
     get_data(@data_source)
     header
-    list(@keys, @data, filters, group_by)
+    list(@keys, @data, filters, key, sort_or_group)
     footer(@data)
   end
 
@@ -150,7 +151,7 @@ class List < Base
     puts ''
   end
 
-  def list(keys, data, filters='', group_by='name')
+  def list(keys, data, filters='', key, sort_or_group)
     # filters the data using specified filters
     result = list_filter(data, filters)
     # applies formatting to the column headings and puts to screen
@@ -160,8 +161,8 @@ class List < Base
     if result.empty?
       empty_list(filters)
     else
-      # Group the results by Cohort and write to screen
-      group_list_entries(result, group_by)
+      # Group the results by key and put to screen
+      sort_or_group.to_sym == :sort ? sort_list_entries(result, key) : group_list_entries(result, key)
     end
     keys.reject! {|item| item.empty?}
   end
@@ -170,6 +171,8 @@ class List < Base
     sorted_result = data.sort_by { |item|
       eval("item.#{sort_by}")
     }
+
+    @@last_sort = sort_by
 
     sorted_results_print(sorted_result)
     # c = 1
@@ -198,19 +201,21 @@ class List < Base
   def group_list_entries(data, group_by)
     grouped_results = {}
 
-    # order and group alphabetically
-    data.sort_by { |item| eval("item.#{group_by}") }.group_by{|item| eval("item.#{group_by}[0]") }
-        .map {|grouped_by, array| grouped_results[grouped_by] = array }
+    if group_by != 'name' || group_by != 'title'
+      # order and group alphabetically
+      data.sort_by { |item| eval("item.#{group_by}") }.group_by{|item| eval("item.#{group_by}") }
+          .map {|grouped_by, array| grouped_results[grouped_by] = array }
+    else
+      # order and group alphabetically
+      data.sort_by { |item| eval("item.#{group_by}") }.group_by{|item| eval("item.#{group_by}[0]") }
+          .map {|grouped_by, array| grouped_results[grouped_by] = array }
+    end
 
-    # group by column
-    # data.group_by { |lst_obj| eval("lst_obj.#{group_by}") }.map {|grouped_by, array| grouped_results[grouped_by] = array }
-    # List selection counter
 
-    grouped_results_print(grouped_results)
-
+    grouped_results_print(grouped_results, group_by)
   end
 
-  def grouped_results_print(grouped_results)
+  def grouped_results_print(grouped_results, group_by)
     grouped = []
     c = 1
     # print each group heading and result array to screen
