@@ -34,7 +34,7 @@ class Student < Base
         Student.new(name.to_s, sex.to_s, age.to_i, cohort.to_sym)
       }
 
-      Student.log(:screen, :info, "Successfully loaded #{@@students.length} students from #{filename}.")
+      Student.log(:screen, :info, "Successfully loaded #{@@students.length} students.")
     end
 
     def save_students(file_check=true, filename='students.csv')

@@ -201,7 +201,7 @@ class List < Base
   def group_list_entries(data, group_by)
     grouped_results = {}
 
-    if group_by != 'name' || group_by != 'title'
+    if group_by != 'name'
       # order and group alphabetically
       data.sort_by { |item| eval("item.#{group_by}") }.group_by{|item| eval("item.#{group_by}") }
           .map {|grouped_by, array| grouped_results[grouped_by] = array }

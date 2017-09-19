@@ -2,9 +2,9 @@ class FileHandler
   require 'csv'
   require 'json'
 
-  $CSV_PATH = 'csv/'
-  $JSON_PATH = 'json/'
-
+  @@CSV_PATH = 'csv/'
+  @@JSON_PATH = 'json/'
+  @@CURRENT_LIST_FILE = 'students.csv'
   class << self
 
     def exist?(path)
@@ -26,28 +26,28 @@ class FileHandler
 
     def load_csv(file_check, filename, &block)
       if file_check
-       filename = file_name(filename) if exist?("#{$CSV_PATH + filename}")
+       filename = file_name(filename) if exist?("#{@@CSV_PATH + filename}")
       end
-      CSV.foreach("#{$CSV_PATH + filename}") do |row|
+      CSV.foreach("#{@@CSV_PATH + filename}") do |row|
         block.call(row)
       end
     end
 
     def save_csv(file_check, filename, &block)
       if file_check
-        if exist?("#{$CSV_PATH + filename}")
+        if exist?("#{@@CSV_PATH + filename}")
           filename = file_replace(filename)
         else
           filename = file_name(filename)
         end
       end
-      CSV.open("#{$CSV_PATH + filename}", 'wb') do |csv|
+      CSV.open("#{@@CSV_PATH + filename}", 'wb') do |csv|
         block.call(csv)
       end
     end
 
     def json_file_save(filename, data)
-      File.open("#{$JSON_PATH + filename}",'w') do |f|
+      File.open("#{@@JSON_PATH + filename}",'w') do |f|
         f.write(data.to_json)
       end
     end
